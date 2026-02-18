@@ -1,0 +1,207 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define TAMANHO_FILA 5
+#define TAMANHO_PILHA 3
+
+
+// Estrutura da Peça
+
+typedef struct {
+    char nome;
+    int id;
+} Peca;
+
+// ===============================
+// Estruturas Globais
+// ===============================
+Peca fila[TAMANHO_FILA];
+Peca pilha[TAMANHO_PILHA];
+
+int inicio = 0;
+int fim = 0;
+int quantidadeFila = 0;
+
+int topo = -1;  // Pilha começa vazia
+
+int contadorID = 0;
+
+// ===============================
+// Protótipos
+// ===============================
+Peca gerarPeca();
+void inicializarFila();
+void enfileirar();
+Peca desenfileirar();
+
+void jogarPeca();
+void reservarPeca();
+void usarPecaReservada();
+void trocarSimples();
+void trocarMultipla();
+
+void mostrarEstado();
+void menu();
+void limparBuffer();
+
+// ===============================
+int main() {
+
+    srand(time(NULL));
+    inicializarFila();
+    menu();
+
+    return 0;
+}
+
+// ===============================
+// Geração automática de peça
+// ===============================
+Peca gerarPeca() {
+    char tipos[] = {'I','O','T','L'};
+    Peca nova;
+    nova.nome = tipos[rand() % 4];
+    nova.id = contadorID++;
+    return nova;
+}
+
+// ===============================
+void inicializarFila() {
+    for(int i = 0; i < TAMANHO_FILA; i++)
+        enfileirar();
+}
+
+// ===============================
+void enfileirar() {
+    Peca nova = gerarPeca();
+    fila[fim] = nova;
+    fim = (fim + 1) % TAMANHO_FILA;
+    quantidadeFila++;
+}
+
+// ===============================
+Peca desenfileirar() {
+    Peca removida = fila[inicio];
+    inicio = (inicio + 1) % TAMANHO_FILA;
+    quantidadeFila--;
+    return removida;
+}
+
+// ===============================
+void jogarPeca() {
+    Peca removida = desenfileirar();
+    printf("\nPeça [%c %d] jogada!\n", removida.nome, removida.id);
+    enfileirar();
+}
+
+// ===============================
+void reservarPeca() {
+
+    if(topo == TAMANHO_PILHA - 1) {
+        printf("\nPilha cheia!\n");
+        return;
+    }
+
+    Peca movida = desenfileirar();
+    pilha[++topo] = movida;
+
+    printf("\nPeça [%c %d] enviada para reserva!\n", movida.nome, movida.id);
+
+    enfileirar();
+}
+
+// ===============================
+void usarPecaReservada() {
+
+    if(topo == -1) {
+        printf("\nPilha vazia!\n");
+        return;
+    }
+
+    Peca usada = pilha[topo--];
+    printf("\nPeça [%c %d] usada da reserva!\n", usada.nome, usada.id);
+
+    enfileirar();
+}
+
+// ===============================
+// TROCA SIMPLES
+// ===============================
+void trocarSimples() {
+
+    if(topo == -1) {
+        printf("\nNão há peça na pilha para trocar!\n");
+        return;
+    }
+
+    int indiceFrente = inicio;
+
+    Peca temp = fila[indiceFrente];
+    fila[indiceFrente] = pilha[topo];
+    pilha[topo] = temp;
+
+    printf("\nTroca simples realizada!\n");
+}
+
+// ===============================
+// TROCA MÚLTIPLA (3x3)
+// ===============================
+void trocarMultipla() {
+
+    if(topo < 2) {
+        printf("\nPilha precisa ter pelo menos 3 peças!\n");
+        return;
+    }
+
+    if(quantidadeFila < 3) {
+        printf("\nFila precisa ter pelo menos 3 peças!\n");
+        return;
+    }
+
+    for(int i = 0; i < 3; i++) {
+
+        int indiceFila = (inicio + i) % TAMANHO_FILA;
+        int indicePilha = topo - i;
+
+        Peca temp = fila[indiceFila];
+        fila[indiceFila] = pilha[indicePilha];
+        pilha[indicePilha] = temp;
+    }
+
+    printf("\nTroca múltipla realizada entre 3 primeiras peças!\n");
+}
+
+// ===============================
+void mostrarEstado() {
+
+    printf("\n====================================\n");
+    printf("Fila de Peças:\n");
+
+    int indice = inicio;
+    for(int i = 0; i < quantidadeFila; i++) {
+        printf("[%c %d] ", fila[indice].nome, fila[indice].id);
+        indice = (indice + 1) % TAMANHO_FILA;
+    }
+
+    printf("\n\nPilha de Reserva (Topo -> Base):\n");
+
+    if(topo == -1)
+        printf("[Vazia]");
+    else
+        for(int i = topo; i >= 0; i--)
+            printf("[%c %d] ", pilha[i].nome, pilha[i].id);
+
+    printf("\n====================================\n");
+}
+
+// ===============================
+// Limpa buffer em caso de erro de entrada
+// ===============================
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+// ===============================
+// MENU COM TRATAMENTO
