@@ -1,0 +1,195 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define TAMANHO_FILA 5
+#define TAMANHO_PILHA 3
+
+// Estrutura da Peça
+
+typedef struct {
+    char nome;
+    int id;
+} Peca;
+
+// Variáveis Globais
+
+Peca fila[TAMANHO_FILA];
+Peca pilha[TAMANHO_PILHA];
+
+int inicio = 0;
+int fim = 0;
+int quantidadeFila = 0;
+
+int topo = -1;  // Pilha começa vazia
+
+int contadorID = 0;
+
+
+// Protótipos
+
+Peca gerarPeca();
+void inicializarFila();
+void enfileirar();
+void desenfileirar();
+void jogarPeca();
+void reservarPeca();
+void usarPecaReservada();
+void mostrarEstado();
+void menu();
+
+
+int main() {
+
+    srand(time(NULL));
+    inicializarFila();
+    menu();
+
+    return 0;
+}
+
+
+// Gera peça automática
+
+Peca gerarPeca() {
+
+    char tipos[] = {'I', 'O', 'T', 'L'};
+
+    Peca nova;
+    nova.nome = tipos[rand() % 4];
+    nova.id = contadorID++;
+
+    return nova;
+}
+
+// ===============================
+void inicializarFila() {
+    for(int i = 0; i < TAMANHO_FILA; i++) {
+        enfileirar();
+    }
+}
+
+
+void enfileirar() {
+
+    Peca nova = gerarPeca();
+
+    fila[fim] = nova;
+    fim = (fim + 1) % TAMANHO_FILA;
+    quantidadeFila++;
+}
+
+
+Peca desenfileirar() {
+
+    Peca removida = fila[inicio];
+    inicio = (inicio + 1) % TAMANHO_FILA;
+    quantidadeFila--;
+
+    return removida;
+}
+
+
+// AÇÃO 1 - Jogar peça
+
+void jogarPeca() {
+
+    Peca removida = desenfileirar();
+    printf("\nPeça [%c %d] jogada!\n", removida.nome, removida.id);
+
+    enfileirar(); // Mantém fila cheia
+}
+
+
+// AÇÃO 2 - Reservar peça
+void reservarPeca() {
+
+    if(topo == TAMANHO_PILHA - 1) {
+        printf("\nPilha cheia! Não é possível reservar.\n");
+        return;
+    }
+
+    Peca movida = desenfileirar();
+
+    topo++;
+    pilha[topo] = movida;
+
+    printf("\nPeça [%c %d] reservada!\n", movida.nome, movida.id);
+
+    enfileirar();
+}
+
+
+// AÇÃO 3 - Usar peça reservada
+
+void usarPecaReservada() {
+
+    if(topo == -1) {
+        printf("\nPilha vazia! Nenhuma peça reservada.\n");
+        return;
+    }
+
+    Peca usada = pilha[topo];
+    topo--;
+
+    printf("\nPeça [%c %d] usada da reserva!\n", usada.nome, usada.id);
+
+    enfileirar();
+}
+
+
+void mostrarEstado() {
+
+    printf("\n============================\n");
+    printf("Fila de Peças:\n");
+
+    int indice = inicio;
+    for(int i = 0; i < quantidadeFila; i++) {
+        printf("[%c %d] ", fila[indice].nome, fila[indice].id);
+        indice = (indice + 1) % TAMANHO_FILA;
+    }
+
+    printf("\n\nPilha de Reserva (Topo -> Base):\n");
+
+    if(topo == -1) {
+        printf("[Vazia]");
+    } else {
+        for(int i = topo; i >= 0; i--) {
+            printf("[%c %d] ", pilha[i].nome, pilha[i].id);
+        }
+    }
+
+    printf("\n============================\n");
+}
+
+void menu() {
+    int opcao;
+    do {
+        mostrarEstado();
+
+        printf("\n1 - Jogar peça\n");
+        printf("2 - Reservar peça\n");
+        printf("3 - Usar peça reservada\n");
+        printf("0 - Sair\n");
+        printf("Escolha: ");
+        scanf("%d", &opcao);
+
+        switch(opcao) {
+            case 1:
+                jogarPeca();
+                break;
+            case 2:
+                reservarPeca();
+                break;
+            case 3:
+                usarPecaReservada();
+                break;
+            case 0:
+                printf("\nEncerrando...\n");
+                break;
+            default:
+                printf("\nOpção inválida!\n");
+        }
+
+    } while(opcao != 0);
+}
