@@ -13,9 +13,9 @@ typedef struct {
     int id;
 } Peca;
 
-// ===============================
+
 // Estruturas Globais
-// ===============================
+
 Peca fila[TAMANHO_FILA];
 Peca pilha[TAMANHO_PILHA];
 
@@ -27,9 +27,9 @@ int topo = -1;  // Pilha começa vazia
 
 int contadorID = 0;
 
-// ===============================
+
 // Protótipos
-// ===============================
+
 Peca gerarPeca();
 void inicializarFila();
 void enfileirar();
@@ -45,7 +45,7 @@ void mostrarEstado();
 void menu();
 void limparBuffer();
 
-// ===============================
+
 int main() {
 
     srand(time(NULL));
@@ -55,9 +55,9 @@ int main() {
     return 0;
 }
 
-// ===============================
+
 // Geração automática de peça
-// ===============================
+
 Peca gerarPeca() {
     char tipos[] = {'I','O','T','L'};
     Peca nova;
@@ -66,13 +66,13 @@ Peca gerarPeca() {
     return nova;
 }
 
-// ===============================
+
 void inicializarFila() {
     for(int i = 0; i < TAMANHO_FILA; i++)
         enfileirar();
 }
 
-// ===============================
+
 void enfileirar() {
     Peca nova = gerarPeca();
     fila[fim] = nova;
@@ -80,7 +80,7 @@ void enfileirar() {
     quantidadeFila++;
 }
 
-// ===============================
+
 Peca desenfileirar() {
     Peca removida = fila[inicio];
     inicio = (inicio + 1) % TAMANHO_FILA;
@@ -88,14 +88,14 @@ Peca desenfileirar() {
     return removida;
 }
 
-// ===============================
+
 void jogarPeca() {
     Peca removida = desenfileirar();
     printf("\nPeça [%c %d] jogada!\n", removida.nome, removida.id);
     enfileirar();
 }
 
-// ===============================
+
 void reservarPeca() {
 
     if(topo == TAMANHO_PILHA - 1) {
@@ -111,7 +111,7 @@ void reservarPeca() {
     enfileirar();
 }
 
-// ===============================
+
 void usarPecaReservada() {
 
     if(topo == -1) {
@@ -125,9 +125,9 @@ void usarPecaReservada() {
     enfileirar();
 }
 
-// ===============================
+
 // TROCA SIMPLES
-// ===============================
+
 void trocarSimples() {
 
     if(topo == -1) {
@@ -144,9 +144,9 @@ void trocarSimples() {
     printf("\nTroca simples realizada!\n");
 }
 
-// ===============================
+
 // TROCA MÚLTIPLA (3x3)
-// ===============================
+
 void trocarMultipla() {
 
     if(topo < 2) {
@@ -172,7 +172,7 @@ void trocarMultipla() {
     printf("\nTroca múltipla realizada entre 3 primeiras peças!\n");
 }
 
-// ===============================
+
 void mostrarEstado() {
 
     printf("\n====================================\n");
@@ -195,13 +195,50 @@ void mostrarEstado() {
     printf("\n====================================\n");
 }
 
-// ===============================
 // Limpa buffer em caso de erro de entrada
-// ===============================
+
 void limparBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-// ===============================
-// MENU COM TRATAMENTO
+
+// MENU COM TRATAMENTO DE ERRO
+
+void menu() {
+
+    int opcao;
+    int resultado;
+
+    do {
+        mostrarEstado();
+
+        printf("\n1 - Jogar peça da frente\n");
+        printf("2 - Enviar peça para reserva\n");
+        printf("3 - Usar peça da reserva\n");
+        printf("4 - Trocar frente da fila com topo da pilha\n");
+        printf("5 - Trocar 3 primeiras da fila com 3 da pilha\n");
+        printf("0 - Sair\n");
+        printf("Escolha: ");
+
+        resultado = scanf("%d", &opcao);
+
+        if(resultado != 1) {
+            printf("\nEntrada inválida! Digite apenas números.\n");
+            limparBuffer();
+            continue;
+        }
+
+        switch(opcao) {
+
+            case 1: jogarPeca(); break;
+            case 2: reservarPeca(); break;
+            case 3: usarPecaReservada(); break;
+            case 4: trocarSimples(); break;
+            case 5: trocarMultipla(); break;
+            case 0: printf("\nEncerrando jogo...\n"); break;
+            default: printf("\nOpção inválida!\n");
+        }
+
+    } while(opcao != 0);
+}
