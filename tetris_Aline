@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define TAMANHO 5   // Tamanho fixo da fila
+
+
+// Estrutura que representa a peça
+typedef struct {
+    char nome;  // Tipo da peça ('I', 'O', 'T', 'L')
+    int id;     // Identificador único
+} Peca;
+
+/
+// Variáveis globais da fila
+
+Peca fila[TAMANHO];
+int inicio = 0;
+int fim = 0;
+int quantidade = 0;
+int contadorID = 0;  // Garante ID único para cada peça
+
+
+// Protótipos das funções
+
+void inicializarFila();
+Peca gerarPeca();
+void enfileirar();
+void desenfileirar();
+void mostrarFila();
+void menu();
+
+
+// Função principal
+
+int main() {
+
+    srand(time(NULL)); // Inicializa números aleatórios
+    inicializarFila(); // Preenche a fila inicialmente
+    menu(); // Inicia menu interativo
+    return 0;
+}
+
+
+// Inicializa a fila com 5 peças
+
+void inicializarFila() {
+    for(int i = 0; i < TAMANHO; i++) {
+        enfileirar();
+    }
+}
+
+
+// Gera automaticamente uma nova peça
+
+Peca gerarPeca() {
+
+    char tipos[] = {'I', 'O', 'T', 'L'};
+    
+    Peca nova;
+    nova.nome = tipos[rand() % 4];  // Escolhe tipo aleatório
+    nova.id = contadorID++;         // ID sequencial
+
+    return nova;
+}
+
+// Insere peça no final da fila
+
+void enfileirar() {
+
+    if(quantidade == TAMANHO) {
+        printf("\nFila cheia! Não é possível inserir nova peça.\n");
+        return;
+    }
+
+    Peca nova = gerarPeca();
+
+    fila[fim] = nova;
+    fim = (fim + 1) % TAMANHO; // Lógica circular
+    quantidade++;
+
+    printf("\nPeça [%c %d] inserida com sucesso!\n", nova.nome, nova.id);
+}
+
+
+// Remove peça da frente da fila
+
+void desenfileirar() {
+
+    if(quantidade == 0) {
+        printf("\nFila vazia! Nenhuma peça para jogar.\n");
+        return;
+    }
+
+    Peca removida = fila[inicio];
+
+    inicio = (inicio + 1) % TAMANHO; // Lógica circular
+    quantidade--;
+
+    printf("\nPeça [%c %d] jogada com sucesso!\n", removida.nome, removida.id);
+}
+
+
+// Mostra estado atual da fila
+
+void mostrarFila() {
+    printf("\nFila de peças:\n");
+    if(quantidade == 0) {
+        printf("[Fila vazia]\n");
+        return;
+    }
+
+    int i;
+    int indice = inicio;
+
+    for(i = 0; i < quantidade; i++) {
+        printf("[%c %d] ", fila[indice].nome, fila[indice].id);
+        indice = (indice + 1) % TAMANHO;
+    }
+
+    printf("\n");
+}
+
+// Menu interativo
+
+void menu() {
+    int opcao;
+    do {
+        mostrarFila();
+        printf("\nOpções:\n");
+        printf("1 - Jogar peça (dequeue)\n");
+        printf("2 - Inserir nova peça (enqueue)\n");
+        printf("0 - Sair\n");
+        printf("Escolha: ");
+        scanf("%d", &opcao);
+
+        switch(opcao) {
+            case 1:
+                desenfileirar();
+                break;
+            case 2:
+                enfileirar();
+                break;
+            case 0:
+                printf("\nEncerrando o jogo...\n");
+                break;
+            default:
+                printf("\nOpção inválida!\n");
+        }
+
+    } while(opcao != 0);
+}
